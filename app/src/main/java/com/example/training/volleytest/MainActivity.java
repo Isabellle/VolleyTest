@@ -1,7 +1,8 @@
 package com.example.training.volleytest;
 
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -13,9 +14,11 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     TextView textView;
     Button start;
@@ -26,33 +29,49 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button start = (Button) findViewById(R.id.start);
-        TextView textView = (TextView) findViewById(R.id.textView);
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        start = (Button) findViewById(R.id.start);
+        textView = (TextView) findViewById(R.id.textView);
+        requestQueue = Volley.newRequestQueue(this);
 
 
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, 'https://randomuser.me/api/',
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, 'http://api.ilepez.be/volley.json',
 
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
-                                JSON
+                                try {
+                                    JSONArray jsonArray = response.getJSONArray("students");
+                                    JSONObject student = jsonArray.getJSONObject(i);
+                                    String firstname = student.getString("firstname");
+                                    String lastname = student.getString("lastname");
+                                    String age = student.getString("age");
+
+                                    textView.append(firstname + " " + lastname + " " + age + "\n");
+
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         },
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-
+                                Log.e("VOLLEY", "ERROR");
                             }
                         }
 
-                )
+                );
+
+                requestQueue.add(jsonObjectRequest);
 
             }
+
+
         });
 
     }
